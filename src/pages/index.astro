@@ -1,0 +1,256 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { getCollection } from "astro:content";
+import FormattedDate from "../components/FormattedDate.astro";
+import { getMultipleWeatherData } from "../lib/weather";
+import HeroImage from "../components/HeroImage.astro";
+
+const villes = ["Bangkok", "Phuket", "Pattaya", "Chiang-Mai"]; // Les villes que vous souhaitez afficher
+const meteoData = await getMultipleWeatherData(villes);
+
+// const posts = (await getCollection('blog')).sort(
+// 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+// );
+const blogs = await getCollection("blog");
+const recettes = await getCollection("recette");
+
+// On ajoute un champ `type` pour les différencier si besoin plus tard
+const allPosts = [
+  ...blogs.map((p) => ({ ...p, type: "blog" })),
+  ...recettes.map((r) => ({ ...r, type: "recette" })),
+];
+
+// Tri par date décroissante
+const posts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <style>
+      main {
+        width: 960px;
+      }
+      .weather-section {
+        margin-top: -5em;
+        padding: 1em;
+        text-align: center;
+      }
+
+      .weather-container {
+        display: flex;
+        flex-wrap: wrap; /* Permet aux carrés de passer à la ligne sur les petits écrans */
+        justify-content: center; /* Centre les carrés sur les grands écrans */
+        gap: 1em; /* Espacement entre les carrés */
+        margin-top: 1em;
+      }
+
+      .weather-block {
+        background-color: #8dc5ef;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 1.5em;
+        text-align: center;
+        width: calc(25% - 1em); /* Quatre carrés par ligne avec espacement */
+        box-sizing: border-box; /* Inclut le padding et la bordure dans la largeur */
+      }
+
+      .weather-block h3 {
+        margin-top: 0;
+        margin-bottom: 0.5em;
+        color: #333;
+        font-size: 1.2em;
+      }
+
+      .temperature {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #007bff; /* Couleur accent pour la température */
+        margin-bottom: 0.5em;
+      }
+
+      .description {
+        font-style: italic;
+        color: #555;
+        margin-bottom: 0.5em;
+        font-size: 0.9em;
+      }
+
+      .weather-block img {
+        width: 50px;
+        height: 50px;
+        margin-top: 0.5em;
+      }
+
+      /* Responsive design pour les écrans plus petits */
+      @media (max-width: 768px) {
+        .weather-block {
+          width: calc(
+            50% - 1em
+          ); /* Deux carrés par ligne sur les écrans moyens */
+        }
+      }
+
+      @media (max-width: 576px) {
+        .weather-block {
+          width: 100%; /* Un carré par ligne sur les petits écrans */
+        }
+      }
+      ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      ul li {
+        width: calc(50% - 1rem);
+      }
+      ul li * {
+        text-decoration: none;
+        transition: 0.2s ease;
+      }
+      ul li:first-child {
+        width: 100%;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      ul li:first-child img {
+        width: 100%;
+      }
+      ul li:first-child .title {
+        font-size: 2.369rem;
+      }
+      ul li img {
+        margin-bottom: 0.5rem;
+        border-radius: 12px;
+      }
+      ul li a {
+        display: block;
+      }
+      .title {
+        margin: 0;
+        color: rgb(var(--black));
+        line-height: 1;
+      }
+      .date {
+        margin: 0;
+        color: rgb(var(--gray));
+      }
+      ul li a:hover h4,
+      ul li a:hover .date {
+        color: rgb(var(--accent));
+      }
+      ul a:hover img {
+        box-shadow: var(--box-shadow);
+      }
+      @media (max-width: 720px) {
+        ul {
+          gap: 0.5em;
+        }
+        ul li {
+          width: 100%;
+          text-align: center;
+        }
+        ul li:first-child {
+          margin-bottom: 0;
+        }
+        ul li:first-child .title {
+          font-size: 1.563em;
+        }
+      }
+
+      .badge {
+        display: inline-block;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: white;
+        background-color: gray;
+      }
+
+      .badge.blog {
+        background-color: #4caf50; /* Vert */
+      }
+
+      .badge.recette {
+        background-color: #ff9800; /* Orange */
+      }
+      .hero-image {
+        width: 720px;
+        height: 360px;
+        object-fit: cover;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main>
+      <section class="weather-section">
+        <h2>Météo Actuelle</h2>
+        <div class="weather-container">
+          {
+            meteoData.map((meteo) => (
+              <div class="weather-block">
+                <h3>{meteo.ville}</h3>
+                <p class="temperature">{meteo.temperature}°C</p>
+                <p class="description">{meteo.description}</p>
+                {meteo.icon && (
+                  <img
+                    src={`https:${meteo.icon}`}
+                    alt={`Icône météo pour ${meteo.description}`}
+                    width="50"
+                    height="50"
+                  />
+                )}
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <section>
+        <ul>
+          {
+            posts.map((post) => (
+              <li>
+                <a href={`/${post.type}/${post.id}/`}>
+                  {post.data.heroImage && (
+                    <img
+                      class="hero-image"
+                      src={post.data.heroImage}
+                      alt={post.data.heroImageAlt}
+                    />
+                  )}
+                  {/* <img width={720} height={360} src={post.data.heroImage} alt="" /> */}
+
+                  {/* 👇 BADGE ICI */}
+                  <span class={`badge ${post.type}`}>
+                    {post.type === "recette" ? "Recette" : "Article"}
+                  </span>
+
+                  <h4 class="title">{post.data.title}</h4>
+                  <p class="date">
+                    <FormattedDate date={post.data.pubDate} />
+                  </p>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>

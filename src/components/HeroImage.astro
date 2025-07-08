@@ -1,0 +1,35 @@
+---
+import { Image } from "astro:assets";
+
+const {
+  src,
+  alt = "Image de recette",
+  width = 720,
+  height = 360,
+  fit = "cover",
+  fallback = true,
+} = Astro.props;
+
+let image;
+
+try {
+  image = await import(`../../../public${src}`);
+} catch (e) {
+  image = null;
+}
+---
+
+{
+  image ? (
+    <Image
+      src={image}
+      width={width}
+      height={height}
+      alt={alt}
+      format="webp"
+      fit={fit}
+    />
+  ) : fallback ? (
+    <div class="image-placeholder">{alt}</div>
+  ) : null
+}

@@ -1,0 +1,263 @@
+---
+import HeaderLink from "./HeaderLink.astro";
+import { SITE_TITLE } from "../consts";
+import { type CollectionEntry, getCollection } from "astro:content";
+
+const recettes = await getCollection("recette");
+
+// On récupère toutes les catégories uniques des recettes
+const categories = [...new Set(recettes.map((r) => r.data.category))];
+---
+
+<header>
+  <nav>
+    <h2><a href="/">{SITE_TITLE}</a></h2>
+    <div class="menu-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="internal-links">
+      <HeaderLink href="/">Accueil</HeaderLink>
+      <div class="recipes-menu">
+        <HeaderLink href="/recettes" id="recipes-menu-link">Recettes</HeaderLink
+        >
+        <ul class="submenu" id="recipes-submenu">
+          {
+            categories.map((category) => (
+              <li>
+                <a href={`/recette/${category}`}>
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <HeaderLink href="/articles">Articles</HeaderLink>
+      <HeaderLink href="/about">A propos</HeaderLink>
+    </div>
+  </nav>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.querySelector(".menu-toggle");
+      const internalLinks = document.querySelector(".internal-links");
+      const recipesMenuLink = document.getElementById("recipes-menu-link");
+      const recipesSubmenu = document.getElementById("recipes-submenu");
+
+      if (menuToggle && internalLinks) {
+        menuToggle.addEventListener("click", () => {
+          internalLinks.classList.toggle("open");
+          menuToggle.classList.toggle("open");
+        });
+      }
+
+      if (recipesMenuLink && recipesSubmenu && menuToggle) {
+        recipesMenuLink.addEventListener("click", (event) => {
+          // Vérifie si le menu burger est affiché (donc, on est sur un écran petit)
+          if (window.innerWidth <= 820) {
+            event.preventDefault(); // Empêche la navigation sur mobile
+            recipesSubmenu.classList.toggle("open"); // Ouvre/ferme le sous-menu sur mobile
+          }
+          // Si le menu burger n'est pas affiché (donc, on est sur un écran plus grand),
+          // le comportement par défaut du lien (la navigation) se produira normalement.
+        });
+      }
+    });
+  </script>
+</header>
+<style>
+  header {
+    margin: 0;
+    padding: 1em; /* Augmentation du padding pour un aspect plus aéré */
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    position: sticky; /* Pour que la barre de navigation reste en haut lors du défilement */
+    top: 0;
+    z-index: 100; /* Pour s'assurer qu'elle est au-dessus du contenu */
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Espacement entre le titre et les liens */
+    max-width: 1200px; /* Largeur maximale pour le contenu de la nav */
+    margin: 0 auto; /* Centrage de la nav sur les écrans plus larges */
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5em; /* Taille de police un peu plus grande */
+  }
+
+  h2 a,
+  h2 a.active {
+    text-decoration: none;
+    color: var(--black); /* Assurez-vous que --black est défini */
+  }
+
+  .internal-links {
+    display: flex;
+    align-items: center;
+  }
+
+  nav a {
+    padding: 0.75em 1em; /* Padding plus uniforme */
+    color: var(--black);
+    text-decoration: none;
+    border-bottom: 2px solid transparent; /* Bordure plus discrète */
+    transition: border-bottom-color 0.3s ease; /* Animation pour la bordure au survol */
+  }
+
+  nav a.active {
+    border-bottom-color: var(
+      --accent
+    ); /* Assurez-vous que --accent est défini */
+  }
+
+  nav a:hover {
+    border-bottom-color: var(--accent);
+  }
+
+  .recipes-menu {
+    position: relative;
+  }
+
+  .recipes-menu > a {
+    /* Style spécifique pour le lien "Recettes" */
+    padding: 0.75em 1em;
+    color: var(--black);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom-color 0.3s ease;
+  }
+
+  .recipes-menu > a:hover {
+    border-bottom-color: var(--accent);
+  }
+
+  .submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    display: none;
+    min-width: 150px; /* Largeur minimale du sous-menu */
+  }
+
+  .recipes-menu:hover .submenu {
+    display: block;
+  }
+
+  .submenu li a {
+    display: block;
+    padding: 0.5em 1.5em; /* Padding légèrement différent pour le sous-menu */
+    color: var(--black);
+    text-decoration: none;
+    border-bottom: 1px solid #eee; /* Ajout d'un séparateur entre les éléments */
+  }
+
+  .submenu li a:last-child {
+    border-bottom: none; /* Pas de bordure sur le dernier élément */
+  }
+
+  .submenu li a:hover {
+    background-color: #f0f0f0;
+  }
+
+  /* Styles pour la responsivité (écrans plus petits) */
+  @media (max-width: 820px) {
+    nav {
+      flex-direction: column; /* Passe les éléments en colonne */
+      align-items: flex-start; /* Alignement à gauche */
+      position: relative; /* Ajout de position relative pour positionner le burger absolument */
+    }
+
+    .internal-links {
+      display: none; /* Cache les liens internes par défaut sur mobile */
+      flex-direction: column;
+      width: 100%;
+      margin-top: 3.5em;
+      border-top: 1px solid #eee; /* Séparation visuelle */
+    }
+
+    .internal-links.open {
+      display: flex; /* Affiche les liens quand la classe "open" est ajoutée */
+    }
+
+    nav a,
+    .recipes-menu > a {
+      padding: 0.75em 0; /* Moins de padding horizontal sur mobile */
+      border-bottom: 1px solid #eee;
+      width: 100%; /* Les liens prennent toute la largeur */
+    }
+
+    .recipes-menu {
+      width: 100%;
+    }
+
+    .submenu {
+      position: static; /* Le sous-menu s'affiche normalement dans le flux */
+      border: none;
+      box-shadow: none;
+      width: 100%;
+    }
+
+    .submenu li a {
+      padding-left: 1.5em; /* Indentation pour le sous-menu sur mobile */
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* Ajout d'un bouton "Menu" pour afficher/cacher les liens sur mobile */
+    .menu-toggle {
+      display: block;
+      cursor: pointer;
+      padding: 0.5em;
+      border: 1px solid black;
+      border-radius: 5px;
+      position: absolute; /* Positionnement absolu par rapport à la nav */
+      top: -0.5em; /* Ajustez la position verticale si nécessaire */
+      right: 1em; /* Positionnement à droite */
+    }
+
+    .menu-toggle span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background-color: black;
+      margin: 5px 0;
+      transition:
+        transform 0.3s ease,
+        opacity 0.3s ease;
+    }
+
+    .menu-toggle.open span:nth-child(1) {
+      transform: translateY(8px) rotate(45deg);
+    }
+
+    .menu-toggle.open span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle.open span:nth-child(3) {
+      transform: translateY(-8px) rotate(-45deg);
+    }
+
+    h2 {
+      font-size: 1.2em; /* Taille du titre réduite sur mobile */
+    }
+  }
+
+  /* Styles pour les écrans encore plus petits (optionnel) */
+  @media (max-width: 480px) {
+    h2 {
+      font-size: 1em;
+    }
+  }
+</style>
