@@ -55,7 +55,7 @@ Alors, prêt(e) à enfiler votre tablier et à régaler vos proches (ou juste vo
 
 Et si vous testez la recette, je serais ravi d’avoir vos retours : avec ou sans chocolat ? Moelleux comme vous l’aimez ? Dites-moi tout !
 
-OU V2
+# OU V2
 
 Il y a des recettes comme ça qu’on ne prévoit pas… mais qui tombent à pic. Ce gâteau à la banane en fait partie. Parce qu’on a tous connu ce moment où trois bananes virent au brun sur la table de la cuisine, trop mûres pour être croquées, mais trop précieuses pour finir à la poubelle.
 
