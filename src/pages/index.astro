@@ -48,11 +48,12 @@ const posts = allPosts.sort(
         flex-wrap: wrap; /* Permet aux carrés de passer à la ligne sur les petits écrans */
         justify-content: center; /* Centre les carrés sur les grands écrans */
         gap: 1em; /* Espacement entre les carrés */
-        margin-top: 1em;
+        margin-top: 2em;
       }
 
       .weather-block {
-        background-color: #8dc5ef;
+        /* background-color: #91c9f6; */
+        background: linear-gradient(rgb(28, 142, 200), rgb(151, 186, 215));
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         padding: 1.5em;
@@ -70,8 +71,8 @@ const posts = allPosts.sort(
 
       .temperature {
         font-size: 1.8em;
-        font-weight: bold;
-        color: #007bff; /* Couleur accent pour la température */
+        /* font-weight: bold; */
+        color: #0e0e0e; /* Couleur accent pour la température */
         margin-bottom: 0.5em;
       }
 
@@ -198,7 +199,7 @@ const posts = allPosts.sort(
     <Header />
     <main>
       <section class="weather-section">
-        <h2>Météo Actuelle</h2>
+        <!-- <h2>Météo Actuelle</h2> -->
         <div class="weather-container">
           {
             meteoData.map((meteo) => (
